@@ -2,7 +2,6 @@ use crate::shared::{ConnectionHandle, Enveloppe, GenericParser, MessageType, Net
 use bevy::prelude::*;
 use log::warn;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
 
 
 #[derive(Resource)]
@@ -22,13 +21,9 @@ impl ConnEnvMap {
 
 
 pub(crate) fn handle_network_events(
-    // mut events: ResMut<Vec<NetworkEvent>>,
     mut events: ResMut<NetworkEventHolder>,
     mut sink: EventWriter<NetworkEvent>,
 ) {
-    // let x = Vec::new();
-    // x.drain(..);
-    // for ev in events.drain(..) {
     for ev in events.drain() {
         sink.send(ev);
     }
@@ -42,28 +37,14 @@ pub struct ConnHandleEvent<T> {
 
 
 pub(crate) fn add_message_consumer_configured<T>(
-    value: String,
 ) -> impl FnMut(
-// pub(crate) fn add_message_consumer<T>(
-    // key: Local<String>,
     Local<String>,
-    // mut hmap: ResMut<HashMap<String, Vec<(ConnectionHandle, Enveloppe)>>>,
-    // mut hmap: ResMut<ConnEnvMap>,
     ResMut<ConnEnvMap>,
-    // router: Res<Arc<Mutex<GenericParser>>>,
-    // router: Res<GenericParserHolder>,
     Res<GenericParserHolder>,
-    // mut queue: EventWriter<(ConnectionHandle, T)>,
-    // mut queue: EventWriter<ConnHandleEvent<T>>,
     EventWriter<ConnHandleEvent<T>>,
-    // Using Comands instead of EventWriter for arbitrary type.
-    // See: https://docs.rs/bevy/latest/bevy/ecs/prelude/struct.EventWriter.html#limitations
-    // mut commands: Commands,  
 ) where
     T: Send + Sync + 'static,
-
 {
-    
     move |key, mut hmap, router, mut queue| {
         if let Some(values) = hmap.remove(&*key) {
             for (handle, v) in values {
@@ -73,10 +54,6 @@ pub(crate) fn add_message_consumer_configured<T>(
                         Ok(msg) => {
                             let event = ConnHandleEvent { handle, msg };
                             queue.send(event);
-                            // queue.send((handle, msg));
-                            // commands.add(|w: &mut World| {
-                            //     w.send_event((handle, msg));
-                            // });
                         }
                         Err(e) => {
                             warn!("failed to downcast : {}", e);
@@ -91,16 +68,6 @@ pub(crate) fn add_message_consumer_configured<T>(
         }
     }
 }
-
-// // pub fn add_message_consumer_wrapper<T>(x: T::message_type().to_string())
-// pub fn add_message_consumer_wrapper<T>(x: String)
-//     where
-//     T: MessageType + 'static,
-//     {
-//         move || {
-//             add_message_consumer(key, hmap, router, queue)
-//         }
-// }
 
 
 
@@ -126,27 +93,14 @@ impl WsMessageInserter for App {
     where
         T: MessageType + 'static,
     {
-        // self.add_event::<(ConnectionHandle, T)>();
         self.add_event::<ConnHandleEvent<T>>();
         let router = self
-            // .app
             .world
-            // .get_resource::<Arc<Mutex<GenericParser>>>()
             .get_resource::<GenericParserHolder>()
             .expect("cannot register message before WebSocketServer initialization");
         router.lock().unwrap().insert_type::<T>();
 
-
-
-        // self.add_system(add_message_consumer::<T>.system().config(|params| {
-        // self.add_systems(Update, add_message_consumer::<T>.config(|params| {
-        //     params.0 = Some(T::message_type().to_string());
-        // }));
-
-        self.add_systems(Update, add_message_consumer_configured::<T>(T::message_type().to_string()));
-
-
-
+        self.add_systems(Update, add_message_consumer_configured::<T>());
 
         self
     }

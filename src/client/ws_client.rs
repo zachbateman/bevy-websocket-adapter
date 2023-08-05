@@ -1,5 +1,5 @@
 use bevy::prelude::Resource;
-use serde::{Serialize};
+use serde::Serialize;
 use crossbeam_channel::{unbounded, TryRecvError, Receiver, Sender};
 use futures::{join, SinkExt, StreamExt};
 use log::{error, warn};

@@ -20,13 +20,10 @@ fn listen_for_events(mut evs: EventReader<NetworkEvent>) {
 
 fn main() {
     simple_logger::init_with_level(log::Level::Debug).unwrap();
-    // App::build()
     App::new()
         .add_plugins(MinimalPlugins)
         .add_plugins(WebSocketServer::default())
-        // .add_startup_system(start_listen.system())
         .add_systems(Startup, start_listen)
-        // .add_system(listen_for_events.system())
         .add_systems(Update, listen_for_events)
         .run();
 }

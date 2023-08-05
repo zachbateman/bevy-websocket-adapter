@@ -26,14 +26,11 @@ fn send_dummies(
 
 fn main() {
     simple_logger::init_with_level(log::Level::Debug).unwrap();
-    // App::build()
     App::new()
         .add_plugins(MinimalPlugins)
         .add_plugins(WebSocketClient::default())
-        // .add_startup_system(connect_to_server.system())
         .add_systems(Startup, connect_to_server)
         .add_message_type::<DummyEvent>()
-        // .add_system(send_dummies.system())
         .add_systems(Update, send_dummies)
         .run();
 }

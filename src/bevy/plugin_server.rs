@@ -20,16 +20,10 @@ impl Plugin for WebSocketServer {
         let network_events = Vec::<NetworkEvent>::new();
         let network_event_holder = NetworkEventHolder { events: network_events };
         app.insert_resource(server)
-            // .insert_resource(router)
             .insert_resource(router_holder)
-            // .insert_resource(map)
             .insert_resource(map_holder)
-            // .insert_resource(network_events)
             .insert_resource(network_event_holder)
             .add_event::<NetworkEvent>()
-            // .add_stage_before(CoreStage::First, "network", SystemStage::single_threaded())
-            // .add_system_to_stage("network", consume_messages.system())
-            // .add_system_to_stage("network", super::shared::handle_network_events.system());
             .add_systems(Update, consume_messages)
             .add_systems(Update, super::shared::handle_network_events);
     }
@@ -37,9 +31,7 @@ impl Plugin for WebSocketServer {
 
 fn consume_messages(
     server: Res<Server>,
-    // mut hmap: ResMut<HashMap<String, Vec<(ConnectionHandle, Enveloppe)>>>,
     mut hmap: ResMut<ConnEnvMap>,
-    // mut network_events: ResMut<Vec<NetworkEvent>>,
     mut network_events: ResMut<NetworkEventHolder>,
 ) {
     if !server.is_running() {
