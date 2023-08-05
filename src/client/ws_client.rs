@@ -1,3 +1,4 @@
+use bevy::prelude::Resource;
 use serde::{Serialize};
 use crossbeam_channel::{unbounded, TryRecvError, Receiver, Sender};
 use futures::{join, SinkExt, StreamExt};
@@ -8,6 +9,7 @@ use tokio_tungstenite::connect_async;
 
 use crate::shared::{ConnectionHandle, NetworkEvent, SendEnveloppe, MessageType};
 
+#[derive(Resource)]
 pub struct Client {
     rt: Arc<Runtime>,
     handle: Option<JoinHandle<()>>,

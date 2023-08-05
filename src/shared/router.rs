@@ -1,6 +1,8 @@
+use bevy::prelude::Resource;
 use serde::{Deserialize, Serialize};
 use std::any::Any;
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex, LockResult, MutexGuard};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Enveloppe {
@@ -30,6 +32,18 @@ where
 {
     Box::new(|v: &serde_json::value::RawValue| Ok(Box::new(serde_json::from_str::<T>(v.get())?)))
 }
+
+
+#[derive(Resource)]
+pub struct GenericParserHolder {
+    pub(crate) parser: Arc<Mutex<GenericParser>>,
+}
+impl GenericParserHolder {
+    pub fn lock(&self) -> LockResult<MutexGuard<'_, GenericParser>> {
+        self.parser.lock()
+    }
+}
+
 
 #[derive(Default)]
 pub struct GenericParser {

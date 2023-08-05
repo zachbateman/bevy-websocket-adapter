@@ -20,18 +20,20 @@ fn connect_to_server(mut ws: ResMut<Client>) {
 
 fn send_dummies(
     client: Res<Client>
-
 ) {
     client.send_message(&DummyEvent{a: 2});
 }
 
 fn main() {
     simple_logger::init_with_level(log::Level::Debug).unwrap();
-    App::build()
+    // App::build()
+    App::new()
         .add_plugins(MinimalPlugins)
-        .add_plugin(WebSocketClient::default())
-        .add_startup_system(connect_to_server.system())
+        .add_plugins(WebSocketClient::default())
+        // .add_startup_system(connect_to_server.system())
+        .add_systems(Startup, connect_to_server)
         .add_message_type::<DummyEvent>()
-        .add_system(send_dummies.system())
+        // .add_system(send_dummies.system())
+        .add_systems(Update, send_dummies)
         .run();
 }

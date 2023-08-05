@@ -1,4 +1,5 @@
 use crate::shared::{MessageType, SendEnveloppe};
+use bevy::prelude::Resource;
 use crossbeam_channel::{unbounded, Receiver, Sender, TryRecvError};
 use futures::{join, pending};
 use futures_util::{future as ufuture, stream::TryStreamExt, SinkExt, StreamExt};
@@ -24,6 +25,7 @@ use crate::shared::{
 pub enum ServerConfigError {}
 
 
+#[derive(Resource)]
 pub struct Server {
     rt: Arc<Runtime>,
     server_handle: Option<JoinHandle<()>>,
